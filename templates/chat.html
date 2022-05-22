@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="static/styles/notifications.css">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles/chat_style.css') }}">
+</head>
+<body>
+    <!-- Navigation bar -->
+    <div class="wrapper">
+        <nav>
+            <nav class="navbar navbar-expand-sm navbar-light fixed-top" style="background-color: #1d2227">
+
+                <div class="container-fluid">
+                    <div id="show-sidebar-button" class="cursor-pointer">
+                        <i class="fas fa-plus-circle "></i>
+                        <span>Rooms</span>
+                    </div>
+
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav ml-auto">
+                            <li class="nav-item">
+                                <a id="logout-btn" class="nav-link" href="{{ url_for('logout') }}"><span style="color: #335177">Logout</span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </nav>
+                
+        <div id = "main-section">
+            <!-- Room area -->
+
+            <!-- Sidebar start -->
+            <nav class = 'side' id="sidebar" style="float: right">
+                <h4>Active users</h4>
+                {% for user in actives %}
+
+                {%if user != username%}
+                    <span id="{{ user }}">{{ user}}</span>
+                    <span href="#" class="badge badge-success">Online</span>
+                    <br>
+                {%endif%}
+
+                {% endfor %}
+                
+            </nav>
+                    
+            <nav id="sidebar" style="float: left">
+                
+                <h4>Rooms</h4>
+                {% for room in rooms %}
+                
+                    <form id="{{ room|title }}" action="/chat" method="POST" class="select-room cursor-pointer" >{{ room|title }}</form>
+                
+                {% endfor %}
+                   
+                
+            </nav>
+               
+                
+                <!-- {% for users in userlist %}
+                    <p id="{{ room|title }}" class="select-room cursor-pointer">{{ users.username|title }}</p>
+                {% endfor %} -->
+            
+        
+            
+                
+                
+
+            <!-- Message area -->
+            <div id = "rightside-pannel">
+                <!-- Display message  -->
+                <div id = "display-message-section">
+                    <p id = 'logs'>    
+                        {% for message in messages %}
+                        {{ message }} 
+                        
+                    
+                        {%endfor%}
+                    </p>
+                   
+                </div>
+                <form name="Item_1" action="/chat" method="POST">
+                    <input type="text" id = "private_message" name="recipient">
+                    <button id="send_private">Send Username</button>
+                </form>
+                
+                <!-- Input message -->
+                <div id="input-area" class="input-group mb-3">
+                    <input type="text" id="user_message" class="form-control" placeholder="Type here..." aria-label="Type a message" aria-describedby="basic-addon2" autocomplete="off">
+                    <div class="input-group-append">
+                        <button id="send_message" class="btn btn-warning" type="button">SEND <i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            
+
+            </div>
+
+
+        </div>
+    </div>
+
+    <!-- JS Make enter key submit -->
+    <script src="{{ url_for('static', filename = 'scripts/chat_page.js') }}">
+</script>
+
+    <!-- Get username -->
+    <script type = 'text/javascript'>
+        const username = `{{ username }}`;
+    </script>
+
+
+    <!-- SocketIO JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous">   
+    </script>
+
+    <!-- CUSTOM SocketIO JS -->
+    <script src = "{{ url_for('static', filename = 'scripts/socketio.js') }}">
+        </script>
+
+</body>
+</html>

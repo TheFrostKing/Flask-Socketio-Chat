@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+
+{% block content %}
+<div class="container" style="text-align: center;width: 100%;">
+    <h2> This is our Manager for Event logs</h2>
+</div>
+
+<div class = "container">
+      <table class="table table-dark">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Level</th>
+            <th scope="col">Date</th>
+            <th scope="col">Source</th>
+            <th scope="col">Event ID</th>
+            <th scope="col">Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+        <a href="#">
+      
+          <tr>
+            <th scope="row">{{application_log.id}}</th>
+            <td><a href='/data/{{application_log.id}}/update'>{{application_log.level}}</a></td>
+            <td>{{application_log.date_time}}</td>
+            <td>{{application_log.source}}</td>
+            <td>{{application_log.event_id}}</td>
+            <td><a href='/data/{{application_log.id}}/delete' onclick="return confirm('Are you sure you want to delete this item?');" type="button" class="btn btn-danger">Delete</a></td>
+
+          </tr>
+        </a>
+        </tbody>
+      </table>
+</div>
+{% endblock %}
+
+

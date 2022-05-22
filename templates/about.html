@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head action="/about" method="POST">
+    {% block head %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+    <title>About us - CRUD</title>
+    {% endblock %}
+  </head>
+    
+  <body style="background: url('https://source.unsplash.com/twukN12EN7c/1920x1080') no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  background-size: cover;
+  -o-background-size: cover;">
+    <div id="header">{% include 'header.html' %} </div>
+    
+    <div class="role=alert position-absolute top-50 start-50 translate-middle">
+        <h2>Just a CRUD web app for event logs!</h2>
+      </div>
+
+
+  </body>
+</html>

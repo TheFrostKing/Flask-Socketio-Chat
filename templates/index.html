@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+
+{% block content %}
+<div class="container" style="text-align: center;width: 100%;">
+    <h2> This is my manager for event logs</h2>
+     Hi {{ current_user.username }}!
+</div>
+
+<div class = "container">
+      <table class="table table-dark">
+        <thead>
+          <tr>
+            <th scope="col">ID</th>
+            <th scope="col">Level</th>
+            <th scope="col">Date</th>
+            <th scope="col">Source</th>
+            <th scope="col">Event ID</th>
+            <th scope="col">Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for application_log in application_logs.items %}
+        <a href="#">
+
+          <tr>
+            <th scope="row">{{application_log.id}}</th>
+            <td><a href='/data/{{application_log.id}}/update'>{{application_log.level}}</a></td>
+            <td>{{application_log.date_time}}</td>
+            <td>{{application_log.source}}</td>
+            <td>{{application_log.event_id}}</td>
+            <td><a href='/data/{{application_log.id}}/delete' onclick="return confirm('Are you sure you want to delete this item?');" type="button" class="btn btn-danger">Delete</a></td>
+
+          </tr>
+        </a>
+          {% endfor %}
+          
+        </tbody>
+      </table>
+   <!-- Pagination Links-->
+<div class="text-right">
+  <a href="{{ url_for('home', page=application_logs.prev_num) }}"
+     class="btn btn-outline-dark 
+     {% if application_logs.page == 1 %}disabled{% endif %}">
+      &laquo;
+  </a><!-- Loop through the number of pages to display a link for each-->
+  {% for page_num in application_logs.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}{% if page_num %}
+<!-- Check for the active page and set the link to "Active"-->
+          {% if application_logs.page == page_num %}
+          <a href="{{ url_for('home', page=page_num) }}"
+             class="btn btn-dark">
+              {{ page_num }}
+          </a>
+          {% else %}
+          <a href="{{ url_for('home', page=page_num) }}"
+             class="btn btn-outline-dark">
+              {{ page_num }}
+          </a>
+          {% endif %}
+      {% else %}
+          ...
+      {% endif %}
+  {% endfor %}    <a href="{{ url_for('home', page=application_logs.next_num) }}"
+     class="btn btn-outline-dark 
+     {% if application_logs.page == application_logs.pages %}disabled{% endif %}">
+      &raquo;
+  </a>
+</div>
+<p class="text-right mt-3">
+ Showing page {{ application_logs.page }} of {{ application_logs.pages }}
+</p>
+</div>>
+{% endblock %}
+
+
+
+

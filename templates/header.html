@@ -1,0 +1,46 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" aria-label="Eighth navbar example">
+    <div class="container">
+      <a class="navbar-brand" href="/">CRUD</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample07" aria-controls="navbarsExample07" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+      <div class="collapse navbar-collapse" id="navbarsExample07">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="/create">Create log</a>
+          </li>
+        </ul>
+        
+      <div class="collapse navbar-collapse" id="navbarsExample07">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a class="nav-link" href="/about">About</a>
+            <li class="nav-item">
+              <a class="nav-link" href="/chat">Chat</a>
+            </li>
+          </li>
+        </ul>
+        <div class="collapse navbar-collapse" id="navbarsExample">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              {% if current_user.username %}
+              <a class="nav-link" href="/logout">Logout</a> 
+              {% else %}
+              <a class="nav-link" href="/login">Login</a> 
+              {% endif %}
+            </li>
+          </ul>
+          
+      
+        <form class="form-inline my-2 my-lg-0" action="/search" method="POST">
+            <div class="d-flex flex-row">
+            <input class="form-control mx-2" type="search" placeholder="Search" name="id" aria-label="Search">
+            <button class="btn btn-outline-success ml-2 my-sm-0" type="submit">Search</button>
+        </div>
+        </form>
+
+
+      </div>
+    </div>
+  </nav>

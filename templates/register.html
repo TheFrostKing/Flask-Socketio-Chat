@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Index{% endblock %}
+
+{% block content %}
+<section class="vh-100 gradient-custom">
+    
+    <form name="Item_1" action="/register" method="POST">
+        {{ form.hidden_tag() }}
+        <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+            <div class="card bg-dark text-white" style="border-radius: 1rem;">
+                <div class="card-body p-5 text-center">
+    
+                <div class="mb-md-5 mt-md-4 pb-5">
+    
+                    <h2 class="fw-bold mb-2 text-uppercase">Register</h2>
+                    <p class="text-white-50 mb-5">Please enter your login and password!</p>
+                    
+                    <div class="form-outline form-white mb-4">
+                
+                    </div>
+                    {% if request.path == '/register' %}
+                    {{ form.username(class_="form-control",placeholder="Username")}}
+                    {% for error in form.username.errors %}
+                    {{ error }}
+                    {% endfor%}
+                        
+                    {% endif%}
+                    <br>
+                    <div class="form-outline form-white mb-4">
+                
+                    {{ form.password(class_="form-control",placeholder="Password")}}
+
+                    </div>
+                    <button type="submit" class="btn btn-block ">
+                        {{ form.submit }}
+                        </button>
+  
+                </div>
+            </div>
+        </div>
+    </form>
+</section>
+{% endblock %}
+
+
