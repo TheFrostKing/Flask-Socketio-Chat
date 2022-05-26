@@ -1,10 +1,30 @@
-from enum import unique
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-from sqlalchemy import TEXT, null
+
  
 db = SQLAlchemy()
+
+class Rooms(db.Model):
+    __tablename__ = "Rooms"
+    ID = db.Column(db.Integer, primary_key=True)
+    Name = db.Column('Name', db.String(80), unique = False)
+    Rooms = db.Column('Rooms', db.String(80), unique = False)
+
+    def __init__(self, Name, Rooms):
+        
+        self.Name = Name
+        self.Rooms = Rooms
+ 
+
+    def __repr__(self):
+        return self.Rooms
+
+    
+
+        
+
+
 
 class History(db.Model):
     __tablename__ = "History"
@@ -12,16 +32,18 @@ class History(db.Model):
     Name = db.Column('Name', db.String(80), unique = False)
     Message = db.Column('Message', db.String(500), unique = False)
     Session = db.Column('Session', db.String(500), unique = False)
+    Time = db.Column(db.DateTime, default=datetime.utcnow)
 
-    def __init__(self, Name, Message, Session):
+    def __init__(self, Name, Message, Session, Time):
         
         self.Name = Name
         self.Message = Message
         self.Session = Session
+        self.Time = Time
  
 
     def __repr__(self):
-        return f"{self.Name}:{self.Message}:{self.Session}"
+        return f"{self.Time} : {self.Name} : {self.Message}"
 
 
 class User(db.Model, UserMixin):

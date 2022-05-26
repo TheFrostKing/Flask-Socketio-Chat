@@ -19,36 +19,83 @@ document.addEventListener('DOMContentLoaded', () => {
     //     // store notifications and receive them after click you have to send them back and update the database
     //         // code if clicked on specific room clear counter 
     // });
-
+    
+   
 
     // Render chat history
     socket.on('history', function (chats){
-        arr = JSON.parse(chats.chats)
-        for (var i = 0; i < arr.length; i++) { 
-            printSysMsg(arr[i])
+      
+        document.querySelector('#display-rooms').innerHTML = '';
+        rooms_arr = JSON.parse(chats.rooms)
+        for (var i = 0; i < rooms_arr.length; i++) { 
+
+            printRooms(rooms_arr[i])
             scrollDownChatWindow()
         }
-        console.log(chats.chats);
+
+        if (chats.joined_user === username) {
+        history_arr = JSON.parse(chats.chats)
+        for (var i = 0; i < history_arr.length; i++) { 
+            printSysMsg(history_arr[i])
+            scrollDownChatWindow()
+        }
+       
+    }
         
     });
     
     socket.on('refresh_response', function(msg) {
-        console.log('restarting')
-        location.reload()
-
-    });
-
-
-    socket.on('user_list', function(msg) {
-        console.log(`${JSON.parse(msg.users)}`)
-        console.log('HERE')
-        const rooms = document.createElement('span');
-        const br = document.createElement('br');
+        clearRooms()
+        console.log('PRINTING REFRESH')
         arr = JSON.parse(msg.rooms)
 
-            // for (var i = 0; i < arr.length; i++) { 
-            //     document.querySelector('.side').append(arr[i])
-            // }
+        for (var i = 0; i < arr.length; i++) { 
+            console.log(arr[i])
+            printRooms(arr[i])
+           
+        }
+        
+    });
+
+    socket.on('load_chats', function(msg) {
+        console.log(msg.rooms)
+        
+    });
+
+   
+
+    socket.on('user_list', function(msg) {
+        console.log(JSON.parse(msg.user))
+        user = JSON.parse(msg.user)
+        console.log(user)
+        const p = document.querySelector('#display-users');
+       
+        if (user) {
+            node = `<span id= ${user}>${user}</span>
+            <span href="#" class="badge badge-success">Online</span> <br>`
+            p.innerHTML += node         
+            
+    }
+
+    document.querySelector("#logout-btn").onclick = () => {
+        
+        console.log('LOGOUT')
+        socket.emit('exit', {'username':username});    
+        
+    }
+
+    // socket.on('user_left', function(msg) {
+    //     console.log(JSON.parse(msg.user_left))
+    //     console.log('LEFT')
+    //     user = JSON.parse(msg.user_left)
+        
+    // });
+        
+        // arr = JSON.parse(msg.rooms)
+
+        //     for (var i = 0; i < arr.length; i++) { 
+        //         document.querySelector('.side').append(arr[i])
+        //     }
         
     });
 
@@ -59,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const span_timestamp = document.createElement('span');
         const rooms = document.createElement('span');
         const br = document.createElement('br');
-
+        
         if (data.username && data.msg !==''){
             span_username.innerHTML = data.username
             span_timestamp.innerHTML = data.time_stamp;
@@ -76,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
         }
         else {
+            
             printSysMsg(data.msg)
             
             
@@ -84,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     });
 
-
+  
 
     //Send message
     document.querySelector('#send_message').onclick = () => {
@@ -99,33 +147,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
   
-    // document.querySelector('#send_private').onclick = () => {
+    document.querySelector('#send_private').onclick = () => {
        
-    //     if (document.querySelector('#private_message').value !== ''){
-    //         socket.emit('refresh', {'username': username, 'room': room, 'recipient': document.querySelector('#private_message').value});
-    //     }
+        if (document.querySelector('#private_message').value !== ''){
+            socket.emit('refresh', {'username': username,
+             'room': room, 'recipient': document.querySelector('#private_message').value});
+        }
+        
        
-    //     document.querySelector('#private_message').value = '';
-    // }
+        document.querySelector('#private_message').value = '';
+    }
 
 
      // Select a room
-    document.querySelectorAll('.select-room').forEach(p => {
+    
+    document.querySelectorAll('#display-rooms').forEach(p => {
         p.onclick = () => {
-            
-            let newRoom = p.innerHTML;
-            // Check if user already in the room
-            if (newRoom === room) {
-                msg = `You are already in ${room} room.`
-                printSysMsg(msg);
-            } else {
-                leaveRoom(room);
-                clearChat()
-                joinRoom(newRoom);
-                room = newRoom;
-            }
+            document.querySelectorAll('.select-room').forEach(p => {
+                p.onclick = () => {
+                    let newRoom = p.textContent;
+                    // Check if user already in the room
+                    if (newRoom === room) {
+                        msg = `You are already in ${room} room.`
+                        printSysMsg(msg);
+                    } else {
+                        joinRoom(newRoom);
+                        leaveRoom(room);
+                        clearChat()
+                        room = newRoom;
+                    }
+                };
+            });
         };
     });
+    
+    
      // Scroll chat window down
     function scrollDownChatWindow() {
         const chatWindow = document.querySelector("#display-message-section");
@@ -139,7 +195,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Join room
     function joinRoom(room) {
         socket.emit('join', {'username': username, 'room': room });
+        
         // Autofocus on text box
+        
         document.querySelector('#user_message').focus()
     }
 
@@ -150,8 +208,22 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('#display-message-section').append(p);
     }
 
+    function printRooms(room) {
+        const p = document.querySelector('#display-rooms');
+        
+        node = `<div><p id = ${room} class = 'select-room cursor-pointer'>${room}</p></div>`
+        p.innerHTML += node
+        
+
+        // document.querySelector('#display-rooms').append(node);
+        
+    }
+
     function clearChat() {
         document.querySelector('#display-message-section').innerHTML = '';
+    }
+    function clearRooms() {
+        document.querySelector('#display-rooms').innerHTML = '';
     }
    
 })
