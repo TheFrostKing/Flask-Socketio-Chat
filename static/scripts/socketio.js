@@ -27,17 +27,21 @@ document.addEventListener('DOMContentLoaded', () => {
       
         document.querySelector('#display-rooms').innerHTML = '';
         rooms_arr = JSON.parse(chats.rooms)
-        for (var i = 0; i < rooms_arr.length; i++) { 
+        console.log(chats)
+       
+        if (chats.joined_user === username){
+            for (var i = 0; i < rooms_arr.length; i++) { 
 
-            printRooms(rooms_arr[i])
-            scrollDownChatWindow()
-        }
+                printRooms(rooms_arr[i])
+                scrollDownChatWindow()
+            }
 
-        if (chats.joined_user === username) {
-        history_arr = JSON.parse(chats.chats)
-        for (var i = 0; i < history_arr.length; i++) { 
-            printSysMsg(history_arr[i])
-            scrollDownChatWindow()
+            if (chats.joined_user === username) {
+            history_arr = JSON.parse(chats.chats)
+            for (var i = 0; i < history_arr.length; i++) { 
+                printSysMsg(history_arr[i])
+                scrollDownChatWindow()
+            }
         }
        
     }
@@ -46,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     socket.on('refresh_response', function(msg) {
         clearRooms()
+        
         console.log('PRINTING REFRESH')
         arr = JSON.parse(msg.rooms)
 

@@ -2,6 +2,8 @@ from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
+from sqlalchemy import null
+
  
 db = SQLAlchemy()
 
@@ -10,15 +12,18 @@ class Rooms(db.Model):
     ID = db.Column(db.Integer, primary_key=True)
     Name = db.Column('Name', db.String(80), unique = False)
     Rooms = db.Column('Rooms', db.String(80), unique = False)
+    Recipient = db.Column('Recipient', db.String(80), unique = False)
 
-    def __init__(self, Name, Rooms):
+    def __init__(self, Name, Rooms, Recipient):
         
         self.Name = Name
         self.Rooms = Rooms
+        self.Recipient = Recipient
+        
  
 
-    def __repr__(self):
-        return self.Rooms
+    # def __repr__(self):
+    #     return dict(name = self.Name, room = self.Rooms, recipient = self.Recipient )
 
     
 

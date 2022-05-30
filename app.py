@@ -300,10 +300,25 @@ def socketio_routes():
                 emit("response", {'msg' : 'Received a msg from someone', 'recipient': data['recipient'],
                  'room': data['room'], 'rooms_of_user': [f'{json_string}'] }, room = users_sessions[session])
                 
-        
+        check_recip = Rooms.query.filter_by(Rooms = data['room'], Recipient = None).first()
+        print(f'\n\n{check_recip} CHECK IF RECIP NOT NULL\n\n')
+        if check_recip == None:
+            recp = Rooms.query.filter_by(Name = current_user.username, Rooms = data['room']).first()
+            # go and check where room matches recipient but also the username is of the recip
 
-        send({'msg': data['msg'], 'username': data['username'], 'recipient': data['recipient'],
-        'time_stamp':strftime("%Y-%m-%d %H:%M:%S",localtime()), 'rooms_of_user': [f'{json_string}']}, room=data['room']) 
+            # get the message to that room 
+            print(f'\n\n{recp.Recipient} CHECK IF I CAPTURED RECIPIENT\n\n')
+            send_pm_to_person = Rooms.query.filter_by(Name = recp.Recipient, Recipient = current_user.username).first()
+            print(send_pm_to_person.Rooms)
+            rooms_list = [data['room'], send_pm_to_person.Rooms]
+            for room in rooms_list:
+                send({'msg': data['msg'], 'username': data['username'], 'recipient': data['recipient'],
+                'time_stamp':strftime("%Y-%m-%d %H:%M:%S",localtime()), 'rooms_of_user': [f'{json_string}']}, room=room) 
+
+        else:
+            send({'msg': data['msg'], 'username': data['username'], 'recipient': data['recipient'],
+            'time_stamp':strftime("%Y-%m-%d %H:%M:%S",localtime()), 'rooms_of_user': [f'{json_string}']}, room=data['room']) 
+
         now = datetime.now()
         datem = datetime.strptime(str(now.strftime("%Y-%m-%d %H:%M:%S")), "%Y-%m-%d %H:%M:%S")  
         query = History(Name=data['username'], Message=data['msg'], Session=data['room'], Time=datem)
@@ -336,28 +351,34 @@ def socketio_routes():
        # Create one identical room for two users to chat privately
         exists = Rooms.query.filter_by(Rooms = check_room, Name = user).first()
         exists_reversed = Rooms.query.filter_by(Rooms = reversed_name, Name = user).first()
-
+        
         if not exists and not exists_reversed and recipient != user:
-            sender = Rooms(Name = user, Rooms = check_room)
-            recip = Rooms(Name = recipient, Rooms = check_room)
+            sender = Rooms(Name = user, Rooms = check_room, Recipient = recipient)
+            recip = Rooms(Name = recipient, Rooms = reversed_name, Recipient = user)
             db.session.add(sender)
             db.session.add(recip)
             db.session.commit()
-            update_rooms = Rooms.query.filter_by(Name = current_user.username).all()
-            print(f'\n\n {update_rooms} \n\n')
-            update_rooms = [str(room) for room in update_rooms]
-            print(f'\n\n {update_rooms} after list compr\n\n')
+
+            sender_rooms = Rooms.query.filter_by(Name = current_user.username).all()
+            print(f'\n\n {sender_rooms} \n\n')
+
+            recipient_rooms = Rooms.query.filter_by(Name = recipient).all()
+    
+            sender_rooms = [str(room.Rooms) for room in sender_rooms]
+            recipient_rooms = [str(room.Rooms) for room in recipient_rooms]
+            
             for user in private_session: # receive notification
                 if data['recipient']:
-                    emit("refresh_response", {'recipient' : data['recipient'], 
-                    'rooms' : [f'{json.dumps(update_rooms)}']}, room = users_sessions[user])
+                    if user == current_user.username:
+                        emit("refresh_response", {'recipient' : data['recipient'], 
+                        'rooms' : [f'{json.dumps(sender_rooms)}']}, room = users_sessions[user])
+                    else:
+                        emit("refresh_response", {'recipient' : data['recipient'], 
+                        'rooms' : [f'{json.dumps(recipient_rooms)}']}, room = users_sessions[user])
         
 
      
                         
-        
-       
-                
 
     @socketio.on('join')
     def join(data):
@@ -368,14 +389,15 @@ def socketio_routes():
         # TO TEST FOR NAMES
         # update_rooms = Rooms.query.filter_by(Rooms = 'lounge').all()
         # print(f'\n\n{update_rooms} PRINTING BY NAMES')
-
+        check_starters = Rooms.query.filter_by(Name = current_user.username).first()
+        if check_starters.Rooms == None:
         # ADD starters' rooms
-        for room in ROOMS: 
-            exists = Rooms.query.filter_by(Rooms = room, Name = name).first()
-            if not exists:
-                new_room = Rooms(Name = name, Rooms = room)
-                db.session.add(new_room)
-                db.session.commit()
+            for room in ROOMS: 
+                exists = Rooms.query.filter_by(Rooms = room, Name = name).first()
+                if not exists:
+                    new_room = Rooms(Name = name, Rooms = room, Recipient=None)
+                    db.session.add(new_room)
+                    db.session.commit()
         
 
         # FROM TUPLE TO LIST result = [r for r, in result]
@@ -391,9 +413,10 @@ def socketio_routes():
         # print(f'\n\n {starter_rooms} \n\n')
         # json_starter_rooms = json.dumps(starter_rooms)
 
-        # Put starting packet of rooms available for the user
+        # displ starting packet of rooms available for the user
         rooms = Rooms.query.filter_by(Name = name).all()
-        rooms = [str(r) for r in rooms]
+        print(rooms)
+        rooms = [str(r.Rooms) for r in rooms]
         json_starter_rooms = json.dumps(rooms)
         
             
@@ -427,6 +450,8 @@ def socketio_routes():
         print(f'\n\n {history_list} PRINTED LIST OF HISTORY')
         json_history= json.dumps(history_list)
         print(f' STIGA LI DO TUK')
+        print(json_starter_rooms)
+        
         emit('history', {'chats': f'{json_history}', 'joined_user': f'{current_user.username}',
         'rooms': f'{json_starter_rooms}'},
         room = users_sessions[current_user.username])
