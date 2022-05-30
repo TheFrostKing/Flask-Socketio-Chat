@@ -1,7 +1,4 @@
-from re import U
-from tokenize import Name
 from flask import Flask,render_template, redirect,url_for,session,request, json
-from pytest import Session
 from datetime import date, datetime, timedelta
 from flask_login import REFRESH_MESSAGE,  login_user, LoginManager, login_required, logout_user, current_user
 from flask_bcrypt import Bcrypt
@@ -332,28 +329,34 @@ def socketio_routes():
         print(data)
         user = current_user.username
         recipient = data['recipient']
+        private_session = [user, recipient]
 
         check_room = f"{user}'s chat with {recipient}"
         reversed_name =  f"{recipient}'s chat with {user}"
-        if recipient != '':
-            if check_room not in users_map[user] and reversed_name not \
-                    in users_map[user] and recipient != user:
-                
-                print(f'\n\n{users_map[user]}\n\n')
-                users = load_all_users()
-            
-                for user in users:
-                    if recipient == user.username:
-                        # PRIVATE MESSAGING a user - it will create a room with the recipient
-                        new_room  = f"{current_user.username}'s chat with {recipient}"
-                        users_map[current_user.username].append(str(new_room))
-                        users_map[recipient].append(str(new_room))
+       # Create one identical room for two users to chat privately
+        exists = Rooms.query.filter_by(Rooms = check_room, Name = user).first()
+        exists_reversed = Rooms.query.filter_by(Rooms = reversed_name, Name = user).first()
+
+        if not exists and not exists_reversed and recipient != user:
+            sender = Rooms(Name = user, Rooms = check_room)
+            recip = Rooms(Name = recipient, Rooms = check_room)
+            db.session.add(sender)
+            db.session.add(recip)
+            db.session.commit()
+            update_rooms = Rooms.query.filter_by(Name = current_user.username).all()
+            print(f'\n\n {update_rooms} \n\n')
+            update_rooms = [str(room) for room in update_rooms]
+            print(f'\n\n {update_rooms} after list compr\n\n')
+            for user in private_session: # receive notification
+                if data['recipient']:
+                    emit("refresh_response", {'recipient' : data['recipient'], 
+                    'rooms' : [f'{json.dumps(update_rooms)}']}, room = users_sessions[user])
+        
+
+     
                         
         
-        for user in users_sessions: # receive notification
-            if data['recipient']:
-                emit("refresh_response", {'recipient' : data['recipient'], 
-                'rooms' : [f'{json.dumps(users_map[current_user.username])}']}, room = users_sessions[user])
+       
                 
 
     @socketio.on('join')
