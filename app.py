@@ -286,7 +286,7 @@ def socketio_routes():
     @socketio.on('message')
     def message(data):
         print(data['recipient'])
-       
+        rooms_list = []
         # send(f'{current_user.username}')
         # send data to clients - broadcasts to all clients
         rooms_of_user  = [ room for room in users_map[current_user.username]]
@@ -301,7 +301,7 @@ def socketio_routes():
                  'room': data['room'], 'rooms_of_user': [f'{json_string}'] }, room = users_sessions[session])
                 
         check_recip = Rooms.query.filter_by(Rooms = data['room'], Recipient = None).first()
-        print(f'\n\n{check_recip} CHECK IF RECIP NOT NULL\n\n')
+        # print(f'\n\n{check_recip} CHECK IF RECIP NOT NULL\n\n')
         if check_recip == None:
             recp = Rooms.query.filter_by(Name = current_user.username, Rooms = data['room']).first()
             # go and check where room matches recipient but also the username is of the recip
@@ -312,7 +312,7 @@ def socketio_routes():
             print(send_pm_to_person.Rooms)
             rooms_list = [data['room'], send_pm_to_person.Rooms]
             for room in rooms_list:
-                send({'msg': data['msg'], 'username': data['username'], 'recipient': data['recipient'],
+                send({'msg': data['msg'], 'username': data['username'], 'recipient': json.dumps(recp.Recipient),
                 'time_stamp':strftime("%Y-%m-%d %H:%M:%S",localtime()), 'rooms_of_user': [f'{json_string}']}, room=room) 
 
         else:
@@ -320,10 +320,11 @@ def socketio_routes():
             'time_stamp':strftime("%Y-%m-%d %H:%M:%S",localtime()), 'rooms_of_user': [f'{json_string}']}, room=data['room']) 
 
         now = datetime.now()
-        datem = datetime.strptime(str(now.strftime("%Y-%m-%d %H:%M:%S")), "%Y-%m-%d %H:%M:%S")  
-        query = History(Name=data['username'], Message=data['msg'], Session=data['room'], Time=datem)
-        db.session.add(query)
-        db.session.commit()
+        datem = datetime.strptime(str(now.strftime("%Y-%m-%d %H:%M:%S")), "%Y-%m-%d %H:%M:%S")
+        for room in rooms_list:
+            query = History(Name=data['username'], Message=data['msg'], Session= room , Time=datem)
+            db.session.add(query)
+            db.session.commit()
 
 
     # @socketio.on('update_rooms')
@@ -341,7 +342,7 @@ def socketio_routes():
         print(f'\n\n REFRESH \n\n')
         print(f'\n\n REFRESH \n\n')
         print(f'\n\n REFRESH \n\n')
-        print(data)
+        
         user = current_user.username
         recipient = data['recipient']
         private_session = [user, recipient]
@@ -385,35 +386,22 @@ def socketio_routes():
         session = request.sid
         name = current_user.username
         users_sessions[name] = data['room']
-         
-        # TO TEST FOR NAMES
-        # update_rooms = Rooms.query.filter_by(Rooms = 'lounge').all()
-        # print(f'\n\n{update_rooms} PRINTING BY NAMES')
-        check_starters = Rooms.query.filter_by(Name = current_user.username).first()
-        if check_starters.Rooms == None:
-        # ADD starters' rooms
+        
+        check_user = Rooms.query.filter_by(Name = current_user.username).first()
+        if check_user:
+           print(f'\n\n IF \n\n')
+
+        else:
+    
             for room in ROOMS: 
                 exists = Rooms.query.filter_by(Rooms = room, Name = name).first()
                 if not exists:
                     new_room = Rooms(Name = name, Rooms = room, Recipient=None)
                     db.session.add(new_room)
                     db.session.commit()
-        
+            
 
-        # FROM TUPLE TO LIST result = [r for r, in result]
-        
 
-        
-        
-        # starter_rooms = []
-        # for user in users_map:
-        #     if name == user :
-        #         for room in users_map[user]:
-        #             starter_rooms.append(room)
-        # print(f'\n\n {starter_rooms} \n\n')
-        # json_starter_rooms = json.dumps(starter_rooms)
-
-        # displ starting packet of rooms available for the user
         rooms = Rooms.query.filter_by(Name = name).all()
         print(rooms)
         rooms = [str(r.Rooms) for r in rooms]
@@ -433,17 +421,20 @@ def socketio_routes():
         print(f'\n\n {session} \n\n')
         print(f'\n\n {users_sessions[name]} \n\n')
 
-        current_room_name = users_sessions[current_user.username]
-        print(f'\n\n {current_room_name} CURRENT ROOM NAME   \n\n')
-        history_list = []
-        history = History.query.filter_by(Session = current_room_name).all()
-        
         
         
 
         join_room(data['room']) 
 
-          #send chat history 
+
+        current_room_name = users_sessions[current_user.username]
+
+        print(f'\n\n {current_room_name} CURRENT ROOM NAME   \n\n')
+
+        history_list = []
+        history = History.query.filter_by(Session = current_room_name).all()
+        
+        # Sending chat history
         for x in history: 
             history_list.append(str(x))
 
@@ -452,9 +443,11 @@ def socketio_routes():
         print(f' STIGA LI DO TUK')
         print(json_starter_rooms)
         
+
         emit('history', {'chats': f'{json_history}', 'joined_user': f'{current_user.username}',
         'rooms': f'{json_starter_rooms}'},
         room = users_sessions[current_user.username])
+        
         send({'msg': data['username'] + " has joined the " + data['room'] + " room."}, room = data['room'])
        
 

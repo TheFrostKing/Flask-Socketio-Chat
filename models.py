@@ -22,8 +22,7 @@ class Rooms(db.Model):
         
  
 
-    # def __repr__(self):
-    #     return dict(name = self.Name, room = self.Rooms, recipient = self.Recipient )
+    
 
     
 

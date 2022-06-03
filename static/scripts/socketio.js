@@ -28,7 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelector('#display-rooms').innerHTML = '';
         rooms_arr = JSON.parse(chats.rooms)
         console.log(chats)
-       
+
+        // upon join will take recipient - in the app from the db
+        // send back to user - send it to the recipient's current room
+        // store it to database
+        // if clicked on this specific room, remove badge
+
         if (chats.joined_user === username){
             for (var i = 0; i < rooms_arr.length; i++) { 
 
@@ -82,12 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
     }
 
-    document.querySelector("#logout-btn").onclick = () => {
-        
-        console.log('LOGOUT')
-        socket.emit('exit', {'username':username});    
-        
-    }
+
 
     // socket.on('user_left', function(msg) {
     //     console.log(JSON.parse(msg.user_left))
@@ -112,6 +112,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const rooms = document.createElement('span');
         const br = document.createElement('br');
         
+        console.log(data.recipient)
+
+        
+
         if (data.username && data.msg !==''){
             span_username.innerHTML = data.username
             span_timestamp.innerHTML = data.time_stamp;

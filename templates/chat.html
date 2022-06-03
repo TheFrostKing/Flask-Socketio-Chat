@@ -33,19 +33,6 @@
                         <ul class="navbar-nav ml-auto">
                             <li class="nav-item">
                                 <a id="logout-btn" class="nav-link btn btn-danger" href="/logout"><span style="color: #e9e7e7">Logout</span></a>
-                               <!-- Remove jquery if removing the following -->
-                               <!-- <script> remove 
-                                $("#logout-btn").click(function(e){
-                                    e.preventDefault();//this will prevent the link trying to navigate to another page
-                                    var href = $(this).attr("href");//get the href so we can navigate later
-                                    socket.emit('exit', {'username':username});    
-                                    //do the update
-                                
-                                    //when update has finished, navigate to the other page
-                                    window.location = href;
-                                });
-                            </script> -->
-                                    <!-- <button id = "logout_chat" type="button" class="btn btn-outline-danger">Danger</button> -->
                             </li>
                         </ul>
                     </div>
@@ -59,7 +46,7 @@
             <!-- Sidebar start -->
             <nav class = 'side' id="sidebar" style="float: right">
                 <h4>Active users</h4>
-
+                    
                 <div id = "display-users">
                 
                 </div>
@@ -97,9 +84,6 @@
             
         
             
-                
-                
-
             <!-- Message area -->
             <div id = "rightside-pannel">
                 <!-- Display message  -->
