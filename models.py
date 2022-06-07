@@ -20,13 +20,7 @@ class Rooms(db.Model):
         self.Rooms = Rooms
         self.Recipient = Recipient
         
- 
 
-    
-
-    
-
-        
 
 
 
